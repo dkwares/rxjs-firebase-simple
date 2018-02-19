@@ -25,6 +25,10 @@ rxfirebase.getByQuery$('/users', (ref => ref.orderByChild('username').equalTo('j
   // perform operations on value
 })
 
+rxfirebase.set$('/users', 'user value').subscribe(value => {
+  // get the same value that was set on
+})
+
 rxfirebase.listen$('/users').subscribe(value => {
   // Gets a new value every time the path is updated
   // perform operations on value
