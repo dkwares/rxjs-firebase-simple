@@ -41,7 +41,7 @@ In addition to the general use, you can also provide default values if no values
 import * as rxfirebase from 'rxjs-firebase-simple';
 
 rxfirebase.get$('/users', 'defaultValue').subscribe(value => {
-  // perform operations on value. The default value will be 'defaultValue'
+  // perform operations on value. The value will be 'defaultValue'
   // if firebase returns a null value at '/users'
 })
 ```
