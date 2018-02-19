@@ -29,3 +29,23 @@ rxfirebase.listen$('/users').subscribe(value => {
   // perform operations on value
 })
 ```
+
+### Default Values and Generics
+In addition to the general use, you can also provide default values if no values are returned from firebase, either because the path is incorrect or there are no values at that location. If you provide a default value, the type of the resulting value is inferred from it.
+```typescript
+import * as rxfirebase from 'rxjs-firebase-simple';
+
+rxfirebase.get$('/users', 'defaultValue').subscribe(value => {
+  // perform operations on value. The default value will be 'defaultValue'
+  // if firebase returns a null value at '/users'
+})
+```
+
+If you do not provide a default value, you can still provide a type to ensure that the return type from firebase is the one you give. This does not force firebase to return an object of that type, only that you know what type should be returned.
+```typescript
+import * as rxfirebase from 'rxjs-firebase-simple';
+
+rxfirebase.get$<string>('/users').subscribe(value => {
+  // perform operations on value. value will be typed as a string
+})
+```
