@@ -33,7 +33,7 @@ export function get$<T>(path: string, defaultValue?: T): Observable<T | null> {
 }
 
 /**
- * Gets a map of children one of its child properties or path
+ * Gets a map of children by one of its child properties or path
  *
  * @param {String} path The location of the parent data
  * @param {String} property The child property to search

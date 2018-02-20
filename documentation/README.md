@@ -105,7 +105,7 @@ ___
 
 
 
-Gets a map of children one of its child properties or path
+Gets a map of children by one of its child properties or path
 
 
 **Type parameters:**

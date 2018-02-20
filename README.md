@@ -9,7 +9,10 @@ npm install rxjs-firebase-simple --save
 [Documentation](documentation/)
 
 ## Usage
-This simple utility helps getting data from firebase and converting the data into an observable stream. Each function returns an Observable stream that closes after getting a single value, except for ```listen$```, which stays open until you manually unsubscribe from the stream.
+This simple utility helps getting data from firebase and converting the data into an Observable stream. Each function returns an Observable stream that closes after getting a single value, except for ```listen$```, which stays open until you unsubscribe from the stream.
+
+**IMPORTANT** The instance of firebase which you are using needs to be authenticated with your private firebase credentials inside of your app. An instance of firebase does not have to be passed to any of these functions.
+
 ```typescript
 import * as rxfirebase from 'rxjs-firebase-simple';
 
