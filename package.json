@@ -1,6 +1,6 @@
 {
   "name": "rxjs-firebase-simple",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple RxJS interface to firebase",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
