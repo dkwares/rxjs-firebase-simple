@@ -1,12 +1,15 @@
 # rxjs-firebase-simple
 [![CircleCI](https://circleci.com/gh/dkwares/rxjs-firebase-simple.svg?style=svg)](https://circleci.com/gh/dkwares/rxjs-firebase-simple)
+[![npm version](https://badge.fury.io/js/rxjs-firebase-simple.svg)](https://badge.fury.io/js/rxjs-firebase-simple)
+
 This is a simple RxJS interface to [Google Firebase](https://firebase.google.com/). 
 ```
 npm install rxjs-firebase-simple --save
 ```
 
-## API Documentation
-[Documentation](documentation/)
+## Useful Links
+[Stackblitz Demo](https://stackblitz.com/edit/rxjs-firebase-simple-demo?file=index.ts)
+[API Documentation](documentation/)
 
 ## Usage
 This simple utility helps getting data from firebase and converting the data into an Observable stream. Each function returns an Observable stream that closes after getting a single value, except for ```listen$```, which stays open until you unsubscribe from the stream.
@@ -16,19 +19,19 @@ This simple utility helps getting data from firebase and converting the data int
 ```typescript
 import * as rxfirebase from 'rxjs-firebase-simple';
 
-rxfirebase.get$('/users').subscribe(value => {
+rxfirebase.get$('/users/john').subscribe(value => {
   // perform operations on value
 })
 
-rxfirebase.getChildrenByPath$('/users', 'username', 'johndoe').subscribe(value => {
+rxfirebase.getChildrenByPath$('/users', 'username', 'john').subscribe(value => {
   // perform operations on value
 })
 
-rxfirebase.getByQuery$('/users', (ref => ref.orderByChild('username').equalTo('johndoe'))).subscribe(value => {
+rxfirebase.getByQuery$('/users', (ref => ref.orderByChild('username').equalTo('john'))).subscribe(value => {
   // perform operations on value
 })
 
-rxfirebase.set$('/users', 'user value').subscribe(value => {
+rxfirebase.set$('/users/amanda', {name: 'amanda', email: 'amanda@mail.com'}).subscribe(value => {
   // get the same value that was set on
 })
 
@@ -43,7 +46,7 @@ In addition to the general use, you can also provide default values if no values
 ```typescript
 import * as rxfirebase from 'rxjs-firebase-simple';
 
-rxfirebase.get$('/users', 'defaultValue').subscribe(value => {
+rxfirebase.get$('/users/john/name', 'defaultValue').subscribe(value => {
   // perform operations on value. The value will be 'defaultValue'
   // if firebase returns a null value at '/users'
 })
@@ -53,7 +56,7 @@ If you do not provide a default value, you can still provide a type to ensure th
 ```typescript
 import * as rxfirebase from 'rxjs-firebase-simple';
 
-rxfirebase.get$<string>('/users').subscribe(value => {
+rxfirebase.get$<string>('/users/john/name').subscribe(value => {
   // perform operations on value. value will be typed as a string
 })
 ```
