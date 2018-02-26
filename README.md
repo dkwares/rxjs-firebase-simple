@@ -9,6 +9,7 @@ npm install rxjs-firebase-simple --save
 
 ## Useful Links
 [Stackblitz Demo](https://stackblitz.com/edit/rxjs-firebase-simple-demo?file=index.ts)
+
 [API Documentation](documentation/)
 
 ## Usage
