@@ -1,3 +1,5 @@
+import { concatMap } from 'rxjs/operators';
+import { Observable } from 'rxjs/Observable';
 import * as firebase from 'firebase';
 import * as rxfirebase from './index';
 
@@ -5,11 +7,32 @@ describe('RxJS Firebase Simple', () => {
     let ref: jasmine.Spy, set: jasmine.Spy, once: jasmine.Spy, val: jasmine.Spy;
     let equalTo: jasmine.Spy, orderByChild: jasmine.Spy, on: jasmine.Spy;
     const path = '/test/path'
+
+    let promiseResolved: boolean;
+    function _resolvePromise(val?: any) {
+        return new Promise((resolve, reject) => {
+            resolve(val);
+            promiseResolved = true;
+        });
+    }
+
+    function subscribeAndExpect(obs$: Observable<any>, fn: (result: any) => void) {
+        expect(promiseResolved).toBe(false)
+        setTimeout(() => {
+            expect(promiseResolved).toBe(false)
+            obs$.subscribe(res => {
+                expect(promiseResolved).toBe(true);
+                fn(res);
+            });
+        }, 50)
+    }
+
     beforeEach(() => {
+        promiseResolved = false;
         on = jasmine.createSpy('on');
         val = jasmine.createSpy('val');
-        set = jasmine.createSpy('set').and.returnValue(Promise.resolve())
-        once = jasmine.createSpy('once').and.returnValue(Promise.resolve({ val }))
+        set = jasmine.createSpy('set').and.callFake(() => _resolvePromise())
+        once = jasmine.createSpy('once').and.callFake(() => _resolvePromise({ val }))
         equalTo = jasmine.createSpy('equalTo').and.returnValue({ once })
         orderByChild = jasmine.createSpy('orderByChild').and.returnValue({ equalTo });
         ref = jasmine.createSpy('ref').and.returnValue({ set, once, orderByChild, on })
@@ -24,7 +47,7 @@ describe('RxJS Firebase Simple', () => {
     describe('#set$', () => {
         it('should set the value on firebase', (done: DoneFn) => {
             const data = 'test-data'
-            rxfirebase.set$(path, data).subscribe(result => {
+            subscribeAndExpect(rxfirebase.set$(path, data), result => {
                 expect(ref).toHaveBeenCalledWith(path);
                 expect(set).toHaveBeenCalledWith(data);
                 expect(result).toBe(data);
@@ -41,7 +64,7 @@ describe('RxJS Firebase Simple', () => {
         it('should get the value from firebase', (done: DoneFn) => {
             const data = 'data'
             val.and.returnValue(data);
-            rxfirebase.get$(path).subscribe(result => {
+            subscribeAndExpect(rxfirebase.get$(path), result => {
                 expect(result).toBe(data)
                 done();
             })
@@ -50,7 +73,7 @@ describe('RxJS Firebase Simple', () => {
         it('should return a default value when no data is found', (done: DoneFn) => {
             const defaultVal = 'defaultValue';
             val.and.returnValue(null);
-            rxfirebase.get$(path, defaultVal).subscribe(result => {
+            subscribeAndExpect(rxfirebase.get$(path, defaultVal), result => {
                 expect(result).toBe(defaultVal);
                 done();
             })
@@ -58,7 +81,7 @@ describe('RxJS Firebase Simple', () => {
 
         it('should return null without a default value and no data is found', (done: DoneFn) => {
             val.and.returnValue(null);
-            rxfirebase.get$(path).subscribe(result => {
+            subscribeAndExpect(rxfirebase.get$(path), result => {
                 expect(result).toBeNull();
                 done();
             })
@@ -83,7 +106,7 @@ describe('RxJS Firebase Simple', () => {
             };
             val.and.returnValue(data);
 
-            rxfirebase.getChildrenByPath$(path, childPath, equalToValue).subscribe(result => {
+            subscribeAndExpect(rxfirebase.getChildrenByPath$(path, childPath, equalToValue), result => {
                 expect(result).toEqual(Object.values(data))
                 done();
             })
@@ -92,7 +115,7 @@ describe('RxJS Firebase Simple', () => {
         it('should return a default value when no data is found', (done: DoneFn) => {
             const defaultVal = ['defaultValue'];
             val.and.returnValue(null);
-            rxfirebase.getChildrenByPath$(path, childPath, equalToValue, defaultVal).subscribe(result => {
+            subscribeAndExpect(rxfirebase.getChildrenByPath$(path, childPath, equalToValue, defaultVal), result => {
                 expect(result).toBe(defaultVal);
                 done();
             })
@@ -100,7 +123,7 @@ describe('RxJS Firebase Simple', () => {
 
         it('should return null without a default value and no data is found', (done: DoneFn) => {
             val.and.returnValue(null);
-            rxfirebase.getChildrenByPath$(path, childPath, equalToValue).subscribe(result => {
+            subscribeAndExpect(rxfirebase.getChildrenByPath$(path, childPath, equalToValue), result => {
                 expect(result).toBeNull();
                 done();
             })
@@ -123,7 +146,7 @@ describe('RxJS Firebase Simple', () => {
             };
             val.and.returnValue(data);
 
-            rxfirebase.getByQuery$(path, (_ref => _ref.orderByChild(childPath).equalTo(equalToValue))).subscribe(result => {
+            subscribeAndExpect(rxfirebase.getByQuery$(path, (_ref => _ref.orderByChild(childPath).equalTo(equalToValue))), result => {
                 expect(result).toBe(data)
                 done();
             })
@@ -132,7 +155,7 @@ describe('RxJS Firebase Simple', () => {
         it('should return a default value when no data is found', (done: DoneFn) => {
             const defaultVal = { id: 'defaultValue' };
             val.and.returnValue(null);
-            rxfirebase.getByQuery$(path, (_ref => _ref.orderByChild(childPath).equalTo(equalToValue)), defaultVal).subscribe(result => {
+            subscribeAndExpect(rxfirebase.getByQuery$(path, (_ref => _ref.orderByChild(childPath).equalTo(equalToValue)), defaultVal), result => {
                 expect(result).toBe(defaultVal);
                 done();
             })
@@ -140,7 +163,7 @@ describe('RxJS Firebase Simple', () => {
 
         it('should return null without a default value and no data is found', (done: DoneFn) => {
             val.and.returnValue(null);
-            rxfirebase.getByQuery$(path, (_ref => _ref.orderByChild(childPath).equalTo(equalToValue))).subscribe(result => {
+            subscribeAndExpect(rxfirebase.getByQuery$(path, (_ref => _ref.orderByChild(childPath).equalTo(equalToValue))), result => {
                 expect(result).toBeNull();
                 done();
             })

@@ -1,9 +1,6 @@
-import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
+import { Observable, Observer } from 'rxjs';
+import { map, concatMap, tap } from 'rxjs/operators';
 import * as firebase from 'firebase';
-
-import 'rxjs/add/observable/fromPromise'
-import 'rxjs/add/operator/map'
 
 /**
  * Sets the data at a provided location
@@ -13,8 +10,10 @@ import 'rxjs/add/operator/map'
  * @return {Observable} The return of the promise
  */
 export function set$<T>(path: string, data: T): Observable<T> {
-    return Observable
-        .fromPromise(firebase.database().ref(path).set(data)).map(res => data)
+    return Observable.of({}).pipe(
+        concatMap(() => Observable.fromPromise(firebase.database().ref(path).set(data)).pipe(
+            map(res => data))))
+
 }
 
 /**
@@ -25,11 +24,12 @@ export function set$<T>(path: string, data: T): Observable<T> {
  * @return {Observable} The Observable with the data at the provided path
  */
 export function get$<T>(path: string, defaultValue?: T): Observable<T | null> {
-    return Observable
-        .fromPromise(firebase.database().ref(path).once('value'))
-        .map((snapshot: firebase.database.DataSnapshot) => snapshot.val())
-        .map((val: T) => val !== null ? val :
-            defaultValue !== undefined ? defaultValue : null)
+    return Observable.of({}).pipe(
+        concatMap(() => Observable.fromPromise(firebase.database().ref(path).once('value')).pipe(
+            map((snapshot: firebase.database.DataSnapshot) => snapshot.val()),
+            map((val: T) => val !== null ? val :
+                defaultValue !== undefined ? defaultValue : null)
+        )))
 }
 
 /**
@@ -42,11 +42,12 @@ export function get$<T>(path: string, defaultValue?: T): Observable<T | null> {
  * @return {Observable} The Observable with the data at the provided path
  */
 export function getChildrenByPath$<T>(path: string, childPath: string, value: any, defaultValue?: T[]): Observable<T[] | null> {
-    return Observable
-        .fromPromise(firebase.database().ref(path).orderByChild(childPath).equalTo(value).once('value'))
-        .map((snapshot: firebase.database.DataSnapshot) => snapshot.val())
-        .map((val: { [keys: string]: T }) => val !== null ? Object.values(val) :
-            defaultValue !== undefined ? defaultValue : null)
+    return Observable.of({}).pipe(
+        concatMap(() => Observable.fromPromise(firebase.database().ref(path).orderByChild(childPath).equalTo(value).once('value')).pipe(
+            map((snapshot: firebase.database.DataSnapshot) => snapshot.val()),
+            map((val: { [keys: string]: T }) => val !== null ? Object.values(val) :
+                defaultValue !== undefined ? defaultValue : null)
+        )))
 }
 
 /**
@@ -58,11 +59,12 @@ export function getChildrenByPath$<T>(path: string, childPath: string, value: an
  * @return {Observable} The Observable with the data at the provided path
  */
 export function getByQuery$<T>(path: string, query: (ref: firebase.database.Reference) => firebase.database.Query, defaultValue?: { [keys: string]: T }): Observable<{ [keys: string]: T } | null> {
-    return Observable
-        .fromPromise(query(firebase.database().ref(path)).once('value'))
-        .map((snapshot: firebase.database.DataSnapshot) => snapshot.val())
-        .map((val: { [keys: string]: T }) => val !== null ? val :
-            defaultValue !== undefined ? defaultValue : null)
+    return Observable.of({}).pipe(
+        concatMap(() => Observable.fromPromise(query(firebase.database().ref(path)).once('value')).pipe(
+            map((snapshot: firebase.database.DataSnapshot) => snapshot.val()),
+            map((val: { [keys: string]: T }) => val !== null ? val :
+                defaultValue !== undefined ? defaultValue : null)
+        )))
 }
 
 /**
